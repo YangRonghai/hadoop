@@ -1,0 +1,347 @@
+{
+ "metadata": {
+  "name": "",
+  "signature": "sha256:c34b681c7b54e69f39e0c8552bc41cbfc7b6f7ee105c51753ee7cc43864cf1b9"
+ },
+ "nbformat": 3,
+ "nbformat_minor": 0,
+ "worksheets": [
+  {
+   "cells": [
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "# IERG 5320 Homework 2 Solution \n",
+      "\n",
+      "## Problem 1"
+     ]
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "I run my code on Ubuntu 12.04 with ext4 file system and python 2.7.6 as follows."
+     ]
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "!uname -a"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": [
+        "Linux ronghai-tes 3.13.0-35-generic #62-Ubuntu SMP Fri Aug 15 01:58:42 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux\r\n"
+       ]
+      }
+     ],
+     "prompt_number": 2
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "!df -T"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": [
+        "Filesystem     Type     1K-blocks    Used Available Use% Mounted on\r\n",
+        "/dev/sda1      ext4      30202916 4704412  24232472  17% /\r\n",
+        "none           tmpfs            4       0         4   0% /sys/fs/cgroup\r\n",
+        "udev           devtmpfs   1757296      12   1757284   1% /dev\r\n",
+        "tmpfs          tmpfs       352500     392    352108   1% /run\r\n",
+        "none           tmpfs         5120       0      5120   0% /run/lock\r\n",
+        "none           tmpfs      1762488       0   1762488   0% /run/shm\r\n",
+        "none           tmpfs       102400       0    102400   0% /run/user\r\n",
+        "/dev/sdb1      ext4     139203560   60924 132048468   1% /mnt\r\n"
+       ]
+      }
+     ],
+     "prompt_number": 3
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "!python --version"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": [
+        "Python 2.7.6\r\n"
+       ]
+      }
+     ],
+     "prompt_number": 4
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "The **code** is as follows:"
+     ]
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "import os, sys,time\n",
+      "import grp,getpass\n",
+      "from stat import *\n",
+      "\n",
+      "stat_info=None\n",
+      "try:\n",
+      "    stat_info = os.stat(sys.argv[1])\n",
+      "except IndexError,e:\n",
+      "    print 'please specify your file'\n",
+      "    exit()\n",
+      "(mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(sys.argv[1])\n",
+      "\n",
+      "if S_ISDIR(mode):\n",
+      "    # It's a directory, recurse into it\n",
+      "    print ' File: \"%s\"' % sys.argv[1]\n",
+      "\n",
+      "elif S_ISREG(mode):\n",
+      "    # It's a file, call the callback function\n",
+      "    print ' File: \"%s\"' % sys.argv[1]    \n",
+      "else:\n",
+      "    # Unknown file type, print a message\n",
+      "    print ' File: \"%s\"' % sys.argv[1]\n",
+      "\n",
+      "print 'Size: %d\\tBlocks: %d\\tIO Block: %d\\t' % (size,stat_info.st_blocks,stat_info.st_blksize),\n",
+      "if S_ISDIR(mode):\n",
+      "    # It's a directory, recurse into it\n",
+      "    print 'directory'\n",
+      "elif S_ISREG(mode):\n",
+      "    # It's a file, call the callback function\n",
+      "    print 'regular file'\n",
+      "else:\n",
+      "    # Unknown file type, print a message\n",
+      "    print 'unknown file type' \n",
+      "\n",
+      "print 'Device: ', \n",
+      "\n",
+      "print hex(stat_info.st_dev)[2:-1]+'h/',\n",
+      "\n",
+      "print '%dd\\tInode: %d\\tLinks: %d'% (stat_info.st_dev,ino,nlink)\n",
+      "print 'Access: '+ oct(stat_info.st_mode)[3:] + '\\tUid: ( ' + str(stat_info.st_uid)+ \"/\"+ getpass.getuser()+' )\\tGid: ( '+ str(stat_info.st_gid) +\"/\"+ grp.getgrgid(stat_info.st_gid).gr_name +')'\n",
+      "\n",
+      "print 'Access: %s' % time.ctime(atime)\n",
+      "print 'Modify: %s' % time.ctime(mtime)\n",
+      "print 'Change: %s' % time.ctime(ctime)\n",
+      "\n",
+      "print '  Birth: ',\n",
+      "try:\n",
+      "    print stat_info.st_birthtime\n",
+      "except AttributeError, e:\n",
+      "    print '-'"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": []
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "**Output** looks as follows:"
+     ]
+    },
+    {
+     "cell_type": "raw",
+     "metadata": {},
+     "source": [
+      "azureuser@ronghai-tes:~/hw2$ python stat.py ../Introduction.ipynb \n",
+      " File: \"../Introduction.ipynb\"\n",
+      "Size: 65857\tBlocks: 136\tIO Block: 4096\tregular file\n",
+      "Device:  801h/ 2049d\tInode: 140251\tLinks: 1\n",
+      "Access: 0777\tUid: ( 1000/azureuser )\tGid: ( 1000/azureuser)\n",
+      "Access: Tue Oct 14 10:49:12 2014\n",
+      "Modify: Tue Oct 14 10:49:12 2014\n",
+      "Change: Wed Oct 22 07:29:53 2014\n",
+      "  Birth:  -\n",
+      "azureuser@ronghai-tes:~/hw2$ "
+     ]
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "Compared with linux command **stat**"
+     ]
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "!stat Introduction.ipynb"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": []
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "## Problem 2\n",
+      "\n",
+      "### MD5 and SHA1\n",
+      "To deal with large file, I read the file block by block and update it along this process. The code is as follows:"
+     ]
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "#!/usr/bin/python\n",
+      "import hashlib\n",
+      "import sys\n",
+      "\n",
+      "def checksum(filename):\n",
+      "    sha1 = hashlib.sha1()\n",
+      "    md5 = hashlib.md5()\n",
+      "    with open(filename, 'rb') as f:\n",
+      "        for chunk in iter(lambda: f.read(512 * sha1.block_size), b''):\n",
+      "            sha1.update(chunk)\n",
+      "            md5.update(chunk)\n",
+      "    return [md5.hexdigest(),sha1.hexdigest()]\n",
+      "if __name__=='__main__':\n",
+      "    try:\n",
+      "        checksum = checksum(sys.argv[1])\n",
+      "        print 'md5:\\t%s\\t%s' % (checksum[0],sys.argv[1])\n",
+      "        print 'SHA1:\\t%s\\t%s' % (checksum[1],sys.argv[1]) \n",
+      "    except IndexError,e:\n",
+      "        print 'please specify the file'\n",
+      "        exit()\n"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": []
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "**Output** looks as follows:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./checksum.py ../Introduction.ipynb`\n",
+      "\n",
+      "`md5:\t620005778bf4650ba92411739def6b28\t../Introduction.ipynb`\n",
+      "\n",
+      "`SHA1:\t653368f1153913e88c6d69c5ebbaaca04b41cc74\t../Introduction.ipynb`\n",
+      "\n",
+      "Compared with the linux md5sum:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ md5sum ../Introduction.ipynb`\n",
+      "\n",
+      "`620005778bf4650ba92411739def6b28  ../Introduction.ipynb`\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ sha1sum ../Introduction.ipynb`\n",
+      "\n",
+      "`653368f1153913e88c6d69c5ebbaaca04b41cc74  ../Introduction.ipynb`\n",
+      "\n",
+      "\n",
+      "They are the same."
+     ]
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "## Problem 3\n",
+      "\n",
+      "Use the magic number to guess the file type. Apart from the required file types, my code also supports gzip file (Of course, it is easy).\n",
+      "Reference: [Magic Number](http://en.wikipedia.org/wiki/List_of_file_signatures)"
+     ]
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "The **code** is as follows:"
+     ]
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "!cat hw2/filetype.py"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": []
+    },
+    {
+     "cell_type": "markdown",
+     "metadata": {},
+     "source": [
+      "**Output** is as follows:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py a.jpg`\n",
+      "\n",
+      "`JPG file`\n",
+      "\n",
+      "If I rename the file to b.bb, the output remains the same (As it is the same for other file types, I only show one file with random extensions).\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py b.bb`\n",
+      "\n",
+      "`JPG file`\n",
+      "\n",
+      "For **exe** file:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py python.exe `\n",
+      "\n",
+      "`exe file`\n",
+      "\n",
+      "For **mp3** file:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py wangfei.mp3`\n",
+      "\n",
+      "`mp3 file`\n",
+      "\n",
+      "For **pdf** file:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py solution.pdf`\n",
+      "\n",
+      "`pdf file`\n",
+      "\n",
+      "For **gzip** file:\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py solution.gzip`\n",
+      "\n",
+      "`gzip file`\n",
+      "\n",
+      "For **zip** file\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py solution.zip `\n",
+      "\n",
+      "`zip file`\n",
+      "\n",
+      "For **wav** file\n",
+      "\n",
+      "`azureuser@ronghai-tes:~/hw2$ ./filetype.py att.wav`\n",
+      "\n",
+      "`wav file`\n"
+     ]
+    }
+   ],
+   "metadata": {}
+  }
+ ]
+}
